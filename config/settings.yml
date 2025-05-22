@@ -33,7 +33,28 @@ moderation_api:
 
   moderation_api_key:
     default: ""
-  
+
+  aliyun_access_key_id:
+    default: ""
+
+  aliyun_access_key_secret:
+    default: ""
+
+  aliyun_region:
+    default: "cn-shanghai"
+
+  aliyun_risk_level_allow_list:
+    default: "none,low"
+    type: list
+    list_type: compact
+    choices: # 使用 YAML 数组语法
+    - "none"
+    - "low"
+    - "medium"
+    - "high"
+    client: false
+    description: "允许通过的风险等级（逗号分隔）"
+
   moderation_api_webhook_signing_secret:
     default: ''
     client: false
