@@ -3,7 +3,7 @@
 module ::DiscourseModerationApi
   class ModerationService
     def self.analyze_post(post)
-      Rails.logger.debug("Analyzing post content")
+      Rails.logger.debug("Moderation API: Analyzing post content")
 
       topic_title = nil
       topic_title = post.topic.title if post.post_number == 1
@@ -29,21 +29,30 @@ module ::DiscourseModerationApi
       content_url:,
       topic_title:
     )
-      Rails.logger.info("Analyzing content with Aliyun Moderation API")
+      Rails.logger.info("Moderation API: Analyzing content")
 
       begin
         # 图片审核部分
         doc = Nokogiri::HTML5.fragment(PrettyText.cook(content))
-        image_urls = doc.css("img").map { |img| img["src"] }.compact
+        Rails.logger.debug("Moderation API: #{doc.to_html}")
+        image_urls = doc.css("img").map { |img| img["src"] }
+        image_urls += doc.css("a").map do |link|
+          href = link["href"].to_s
+          # 使用正则匹配图片扩展名（包含完整扩展名验证）
+          href if href.match?(/\.(jpe?g|png|gif|webp|bmp|svg|tiff?|heic|apng|avif|jxl|psd)$/i)
+        end
+        image_urls.compact!
+        
+        Rails.logger.debug("Moderation API: image_urls: #{image_urls}")
 
         image_urls.each do |url|
           full_url = url.start_with?("http") ? url : "#{Discourse.base_url}#{url}"
-          Rails.logger.debug("Checking image: #{full_url.truncate(100)}")
+          Rails.logger.debug("Moderation API: Checking image: #{full_url.truncate(100)}")
 
           response = aliyun_image_moderation(full_url)
           next if response[:approved]
 
-          Rails.logger.warn("Image moderation failed for URL: #{full_url.truncate(100)}")
+          Rails.logger.warn("Moderation API: Image moderation failed for URL: #{full_url.truncate(100)}")
           return { approved: false }
         end
 
@@ -52,7 +61,7 @@ module ::DiscourseModerationApi
 
         { approved: true }
       rescue => e
-        Rails.logger.error("Unexpected error in moderation service: #{e.message}")
+        Rails.logger.error("Moderation API: Unexpected error in moderation service: #{e.message}")
         Rails.logger.error(e.backtrace.join("\n"))
         { approved: true }
       end
@@ -90,7 +99,7 @@ module ::DiscourseModerationApi
       hmac = OpenSSL::HMAC.digest("sha1", "#{access_key_secret}&", string_to_sign)
       signature = Base64.strict_encode64(hmac)
       params["Signature"] = signature
-
+      Rails.logger.debug("Moderation API: Aliyun API params: #{params}")
       # 构造请求
       uri = URI("https://green-cip.#{region}.aliyuncs.com")
       uri.query = URI.encode_www_form(params)
@@ -103,14 +112,14 @@ module ::DiscourseModerationApi
       # 发送请求
       response = http.request(request)
       json_response = JSON.parse(response.body)
-      Rails.logger.info("Aliyun API resp: #{json_response}")
+      Rails.logger.info("Moderation API: Aliyun API resp: #{json_response}")
       # 根据实际响应结构调整以下判断逻辑
       if json_response && (response.code.to_i >= 200 && response.code.to_i < 300)
         risk_level = json_response.dig("Data", "RiskLevel")&.downcase
         
         # 从配置读取允许的等级列表
         allowed_levels = SiteSetting.aliyun_risk_level_allow_list.split(',').map(&:downcase)
-        Rails.logger.debug("RiskLevel: #{risk_level} | Allowed: #{allowed_levels}")
+        Rails.logger.debug("Moderation API: RiskLevel: #{risk_level} | Allowed: #{allowed_levels}")
         # 动态判断
         if risk_level && allowed_levels.include?(risk_level)
           approved = true
@@ -124,7 +133,7 @@ module ::DiscourseModerationApi
       end
       { approved: approved }
     rescue => e
-      Rails.logger.error("Aliyun API error: #{e.message}")
+      Rails.logger.error("Moderation API: Aliyun API error: #{e.message}")
       { approved: true } # 失败时默认通过
     end
 

@@ -1,0 +1,25 @@
+en:
+  admin_js:
+    admin:
+      site_settings:
+        categories:
+          moderation_api: "Moderation API"
+  js:
+    moderation_api:
+      title: "Moderation API"
+      placeholder: placeholder
+      configure_project:
+        title: "Configure Moderation Project"
+        button_label: "Edit Settings"
+      settings:
+        header_description: "Configure settings for the Moderation API plugin. This plugin automatically moderates posts using an external API service."
+        flagging_behavior: "Flagging Behavior"
+        block_message: "Block Message"
+        notify_on_post_queue: "审核 API 在发布队列上通知"
+        check_private_message: "Check Private Messages"
+        skip_groups: "Skip Groups"
+        skip_categories: "Skip Categories"
+        api_key: "API Key"
+        webhook_signing_secret: "Webhook Signing Secret"
+        plugin_disabled: "The Moderation API plugin is currently disabled. Enable it in site settings to configure."
+

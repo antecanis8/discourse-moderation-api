@@ -1,0 +1,28 @@
+en:
+  site_settings:
+    moderation_api_enabled: "启用 Moderation API 插件以过滤不需要的内容"
+    moderation_api_add_to_queue: "Add flagged posts to the moderation queue."
+    moderation_api_key: "Moderation API key. Get an API key from your project settings: https://moderationapi.com/app"
+    moderation_api_webhook_signing_secret: "Enter your secret to prevent unauthorized webhook requests. Get a secret from your review queue integration settings in Moderation API."
+    moderation_api_flagging_behavior: "如何处理被 Moderation API 标记的帖子。"
+    moderation_api_block_message: "当用户的帖子被标记且无法发布时向用户显示的消息"
+    moderation_api_block_post: "Block flagged posts."
+    moderation_api_allow_post: "Allow flagged posts."
+    moderation_api_allow_and_warn: "Allow posts but warn users"
+    moderation_api_check_private_message: "审查和标记私信"
+    moderation_api_skip_groups: "跳过对这些组中的帖子的审核"
+    moderation_api_skip_categories: "跳过这些类别中的帖子的审核"
+    moderation_api_notify_on_post_queue: "当用户的帖子被隐藏并排队等待审核时向用户发送消息"
+    confirmation_required: "Confirmation required: flagged content"
+
+  system_messages:
+    moderation_api_post_queued_for_review:
+      subject_template: "Moderation API has temporarily hidden your post"
+      text_body_template: |
+        Hello,
+
+        Our automated moderation filter, [Moderation API](https://moderationapi.com/), has temporarily hidden [your post](%{post_link}) in *%{topic_title}* for review.
+
+        A [staff member](%{base_url}/about) will review your post soon, and it should appear shortly.
+
+        We apologize for the inconvenience.
