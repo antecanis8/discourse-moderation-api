@@ -2,7 +2,6 @@
 
 source "https://rubygems.org"
 
-gem "moderation_api"
 
 group :development do
   gem "rubocop-discourse"
